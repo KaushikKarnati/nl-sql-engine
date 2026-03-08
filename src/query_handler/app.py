@@ -154,7 +154,29 @@ def run_athena_query(sql: str) -> list:
  
     return results
 
+def health_handler(event, context):
+    """Simple health check endpoint — returns 200 if Lambda is running."""
+    return {
+        'statusCode': 200,
+        'headers': {'Content-Type': 'application/json'},
+        'body': json.dumps({
+            'status': 'healthy',
+            'service': 'nl-to-sql-engine',
+            'version': '1.0.0'
+        })
+    }
+
+
 def lambda_handler(event, context):
+
+    # Route to health check if it's a GET /health request
+    http_method = event.get('httpMethod', '')
+    path        = event.get('path', '')
+ 
+    if http_method == 'GET' and path == '/health':
+        return health_handler(event, context)
+
+
     """
     Main Lambda entry point. AWS calls this function when the Lambda is invoked.
  
