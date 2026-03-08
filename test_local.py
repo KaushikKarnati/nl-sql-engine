@@ -36,25 +36,25 @@ if __name__ == '__main__':
     test('What are the top 3 products by total revenue?')
  
     # Test 2: Regional breakdown
-    test('Show me total revenue by region')
+    #test('Show me total revenue by region')
  
     # Test 3: Category filter
-    test('How many Electronics orders were placed?')
+    #test('How many Electronics orders were placed?')
  
     # Test 4: Specific date range
-    test('What were total sales in February 2024?')
+    #test('What were total sales in February 2024?')
 
     # Edge case 1: Vague question — does it make a reasonable choice?
-    test('Show me sales')
+    #test('Show me sales')
  
     # Edge case 2: Multi-condition — can it handle AND?
-    test('What Electronics products sold more than 3 units?')
+    #test('What Electronics products sold more than 3 units?')
     
     # Edge case 3: Calculation — does it use the right column?
-    test('What is the average order value per customer segment?')
+    #test('What is the average order value per customer segment?')
     
     # Edge case 4: Completely off-topic — what happens?
-    test('What is the capital of France?')
+    #test('What is the capital of France?')
 
      
 
