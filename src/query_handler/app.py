@@ -1,8 +1,22 @@
 import json
 import time
 import re
+import os
 import boto3
 from botocore.exceptions import ClientError
+
+# Read config from environment variables (set in SAM template)
+# os.getenv('KEY', 'default') — reads env var, falls back to default if not set
+ATHENA_DATABASE  = os.getenv('ATHENA_DATABASE',  'nl_sql_db')
+ATHENA_TABLE     = os.getenv('ATHENA_TABLE',     'sales')
+RESULTS_BUCKET   = os.getenv('RESULTS_BUCKET',   '')
+BEDROCK_MODEL_ID = os.getenv('BEDROCK_MODEL_ID', 'anthropic.claude-3-sonnet-20240229-v1:0')
+BEDROCK_REGION   = os.getenv('BEDROCK_REGION',   'us-east-1')
+ 
+# AWS clients
+bedrock_client = boto3.client('bedrock-runtime', region_name=BEDROCK_REGION)
+athena_client  = boto3.client('athena',          region_name='us-east-1')
+
 
 bedrock_client = boto3.client('bedrock-runtime', region_name='us-east-1')
 athena_client = boto3.client('athena', region_name='us-east-1')
@@ -89,10 +103,10 @@ def run_athena_query(sql: str) -> list:
     response = athena_client.start_query_execution(
         QueryString=sql,
         QueryExecutionContext={
-            'Database': 'nl_sql_db'   # The Glue database from Day 2
+            'Database': ATHENA_DATABASE   # The Glue database from Day 2
         },
         ResultConfiguration={
-            'OutputLocation': 's3://nl-sql-athena-results-867207177403/'
+            'OutputLocation': f's3://{RESULTS_BUCKET}/'
         }
     )
     query_execution_id = response['QueryExecutionId']
