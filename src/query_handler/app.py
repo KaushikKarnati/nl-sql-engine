@@ -8,7 +8,7 @@ from botocore.exceptions import ClientError
 # Read config from environment variables (set in SAM template)
 # os.getenv('KEY', 'default') — reads env var, falls back to default if not set
 ATHENA_DATABASE  = os.getenv('ATHENA_DATABASE',  'nl_sql_db')
-ATHENA_TABLE     = os.getenv('ATHENA_TABLE',     'sales')
+ATHENA_TABLE = os.getenv('ATHENA_TABLE', 'ign_videos')
 RESULTS_BUCKET   = os.getenv('RESULTS_BUCKET',   '')
 BEDROCK_MODEL_ID = os.getenv('BEDROCK_MODEL_ID', 'anthropic.claude-3-sonnet-20240229-v1:0')
 BEDROCK_REGION   = os.getenv('BEDROCK_REGION',   'us-east-1')
@@ -21,30 +21,33 @@ athena_client  = boto3.client('athena',          region_name='us-east-1')
 bedrock_client = boto3.client('bedrock-runtime', region_name='us-east-1')
 athena_client = boto3.client('athena', region_name='us-east-1')
 
-SCHEMA ="""
-You have access to ONE table in Amazon Athena:
+SCHEMA = """You have access to ONE table in Amazon Athena:
  
-Table name: sales
+Table name: ign_videos
 Database: nl_sql_db
  
 Columns:
-  - order_id         (bigint)   : unique identifier for each order
-  - product_name     (string)   : name of the product sold
-  - category         (string)   : product category (Electronics or Furniture)
-  - quantity         (bigint)   : number of units sold
-  - unit_price       (double)   : price per unit in USD
-  - total_revenue    (double)   : total sale value (quantity * unit_price)
-  - order_date       (string)   : date of order in YYYY-MM-DD format
-  - region           (string)   : sales region (North, South, East, West)
-  - customer_segment (string)   : customer type (Enterprise, SMB, Consumer)
+  - video_id          (string)  : unique YouTube video ID
+  - title             (string)  : full video title
+  - published_date    (string)  : date published in YYYY-MM-DD format
+  - published_year    (bigint)  : year the video was published
+  - published_month   (bigint)  : month number (1=January, 12=December)
+  - duration_seconds  (bigint)  : video length in seconds
+  - duration_category (string)  : Short (<60s), Medium (1-5min), Long (5-20min), Extra Long (20min+)
+  - view_count        (bigint)  : total number of views
+  - like_count        (bigint)  : total number of likes
+  - comment_count     (bigint)  : total number of comments
+  - engagement_rate   (double)  : ((likes + comments) / views) * 100
  
 Sample values:
-  - product_name:     Laptop Pro 15, Office Chair Deluxe, Wireless Mouse
-  - category:         Electronics, Furniture
-  - region:           North, South, East, West
-  - customer_segment: Enterprise, SMB, Consumer
-  - order_date range: 2024-01-01 to 2024-02-28
+  - duration_category: Short, Medium, Long, Extra Long
+  - published_year:    2025, 2026
+  - published_month:   1 through 12
+  - published_date:    ranges from 2025-02-13 to 2026-01-27
+  - view_count:        ranges from 0 to several million
+  - engagement_rate:   typically 1.0 to 20.0 (percentage)
 """
+
 
 def generate_sql(question: str) -> str:
     """
