@@ -221,5 +221,4 @@ venv/
  
 # SAM build artifacts
 .aws-sam/
-samconfig.toml
 
